@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOM Chess | Современные шахматы</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="chess-container">
+        <div class="game-header">
+            <h1>♟️ DOM Chess</h1>
+            <div class="game-status">
+                <div class="turn-indicator">
+                    <span class="turn-label">Ход:</span>
+                    <span class="turn-player white-turn">Белые</span>
+                </div>
+                <div class="game-controls">
+                    <button class="btn new-game-btn" id="newGameBtn">🔄 Новая игра</button>
+                    <button class="btn undo-btn" id="undoBtn">↩️ Отменить</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="board-wrapper">
+            <div class="board-container">
+                <div class="board" id="chessBoard"></div>
+                <div class="coordinates">
+                    <div class="files">
+                        <span>a</span><span>b</span><span>c</span><span>d</span>
+                        <span>e</span><span>f</span><span>g</span><span>h</span>
+                    </div>
+                    <div class="ranks">
+                        <span>1</span><span>2</span><span>3</span><span>4</span>
+                        <span>5</span><span>6</span><span>7</span><span>8</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="captured-pieces">
+                <h3>Взятые фигуры</h3>
+                <div class="captured-white"></div>
+                <div class="captured-black"></div>
+            </div>
+        </div>
+
+        <div class="game-footer">
+            <div class="move-history">
+                <h3>История ходов</h3>
+                <div class="moves-list" id="moveHistory"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/pieces.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
