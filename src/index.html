@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Современная HTML форма | Практика GitHub</title>
+    <style>
+        /* Обнуление и базовые стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            animation: gradientBG 15s ease infinite;
+            background-size: 400% 400%;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Основной контейнер формы */
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            transform: translateY(0);
+            animation: slideUp 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Заголовок */
+        .form-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .form-header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(102, 126, 234, 0.3)); }
+            50% { filter: drop-shadow(0 0 20px rgba(102, 126, 234, 0.6)); }
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        /* Сетка формы */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        /* Группа полей */
+        .form-group {
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+        .form-group:nth-child(6) { animation-delay: 0.6s; }
+        .form-group:nth-child(7) { animation-delay: 0.7s; }
+        .form-group:nth-child(8) { animation-delay: 0.8s; }
+        .form-group:nth-child(9) { animation-delay: 0.9s; }
+        .form-group:nth-child(10) { animation-delay: 1.0s; }
+        .form-group:nth-child(11) { animation-delay: 1.1s; }
+        .form-group:nth-child(12) { animation-delay: 1.2s; }
+        .form-group:nth-child(13) { animation-delay: 1.3s; }
+        .form-group:nth-child(14) { animation-delay: 1.4s; }
+        .form-group:nth-child(15) { animation-delay: 1.5s; }
+        .form-group:nth-child(16) { animation-delay: 1.6s; }
+        .form-group:nth-child(17) { animation-delay: 1.7s; }
+        .form-group:nth-child(18) { animation-delay: 1.8s; }
+        .form-group:nth-child(19) { animation-delay: 1.9s; }
+        .form-group:nth-child(20) { animation-delay: 2.0s; }
+        .form-group:nth-child(21) { animation-delay: 2.1s; }
+        .form-group:nth-child(22) { animation-delay: 2.2s; }
+        .form-group:nth-child(23) { animation-delay: 2.3s; }
+        .form-group:nth-child(24) { animation-delay: 2.4s; }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* На всю ширину для некоторых групп */
+        .form-group.full-width {
+            grid-column: span 2;
+        }
+
+        /* Стили для меток */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+            font-size: 0.95em;
+            transition: color 0.3s ease;
+        }
+
+        .form-group:hover label {
+            color: #667eea;
+        }
+
+        /* Стили для полей ввода */
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            background: white;
+        }
+
+        input:hover, select:hover, textarea:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 4px rgba(118, 75, 162, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Стили для радио и чекбоксов */
+        .radio-group, .checkbox-group {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 10px 0;
+        }
+
+        .radio-option, .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .radio-option:hover, .checkbox-option:hover {
+            transform: scale(1.05);
+        }
+
+        .radio-option input[type="radio"], 
+        .checkbox-option input[type="checkbox"] {
+            width: auto;
+            margin-right: 5px;
+            accent-color: #667eea;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+
+        /* Стили для кнопки отправки */
+        .submit-btn {
+            grid-column: span 2;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 1.2em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(102, 126, 234, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Разделитель секций */
+        .section-divider {
+            grid-column: span 2;
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .section-divider::before,
+        .section-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 30%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+        }
+
+        .section-divider::before {
+            left: 0;
+        }
+
+        .section-divider::after {
+            right: 0;
+        }
+
+        .section-divider span {
+            background: white;
+            padding: 0 20px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* Стили для ошибок и подсказок */
+        .hint {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .form-group:hover .hint {
+            color: #667eea;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-group.full-width,
+            .submit-btn,
+            .section-divider {
+                grid-column: span 1;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+        }
+
+        /* Анимация для полей при загрузке */
+        @keyframes inputPop {
+            0% { transform: scale(0.95); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        input, select, textarea {
+            animation: inputPop 0.3s ease-out;
+        }
+
+        /* Стили для текстовой области */
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <div class="form-header">
+            <h1>✨ Современная HTML форма</h1>
+            <p>Заполните все поля (их здесь 24, как вы и просили)</p>
+        </div>
+
+        <!-- Основная форма с 24 полями -->
+        <form action="/submit_form.php" method="POST" target="_blank" autocomplete="on">
+            <div class="form-grid">
+                <!-- Блок 1: Личная информация (8 полей) -->
+                <div class="form-group full-width">
+                    <span>👤 Личная информация</span>
+                </div>
+
+                <!-- Поле 1: Имя -->
+                <div class="form-group">
+                    <label for="firstname">Имя <span style="color: #ff4444;">*</span></label>
+                    <input type="text" id="firstname" name="firstname" placeholder="Введите ваше имя" required>
+                    <div class="hint">Только буквы</div>
+                </div>
+
+                <!-- Поле 2: Фамилия -->
+                <div class="form-group">
+                    <label for="lastname">Фамилия <span style="color: #ff4444;">*</span></label>
+                    <input type="text" id="lastname" name="lastname" placeholder="Введите вашу фамилию" required>
+                </div>
+
+                <!-- Поле 3: Отчество -->
+                <div class="form-group">
+                    <label for="middlename">Отчество</label>
+                    <input type="text" id="middlename" name="middlename" placeholder="Введите отчество">
+                </div>
+
+                <!-- Поле 4: Дата рождения -->
+                <div class="form-group">
+                    <label for="birthdate">Дата рождения <span style="color: #ff4444;">*</span></label>
+                    <input type="date" id="birthdate" name="birthdate" required>
+                </div>
+
+                <!-- Поле 5: Email -->
+                <div class="form-group">
+                    <label for="email">Email <span style="color: #ff4444;">*</span></label>
+                    <input type="email" id="email" name="email" placeholder="example@mail.com" required>
+                </div>
+
+                <!-- Поле 6: Телефон -->
+                <div class="form-group">
+                    <label for="phone">Телефон <span style="color: #ff4444;">*</span></label>
+                    <input type="tel" id="phone" name="phone" placeholder="+7 (999) 999-99-99" required>
+                </div>
+
+                <!-- Поле 7: Возраст -->
+                <div class="form-group">
+                    <label for="age">Возраст</label>
+                    <input type="number" id="age" name="age" min="1" max="120" placeholder="Ваш возраст">
+                </div>
+
+                <!-- Поле 8: Пол (радиокнопки) -->
+                <div class="form-group">
+                    <label>Пол</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" id="male" name="gender" value="male" checked> Мужской
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" id="female" name="gender" value="female"> Женский
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" id="other" name="gender" value="other"> Другой
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Разделитель -->
+                <div class="section-divider">
+                    <span>🏠 Адрес и местоположение</span>
+                </div>
+
+                <!-- Блок 2: Адрес (7 полей) -->
+                
+                <!-- Поле 9: Страна -->
+                <div class="form-group">
+                    <label for="country">Страна <span style="color: #ff4444;">*</span></label>
+                    <select id="country" name="country" required>
+                        <option value="">Выберите страну</option>
+                        <option value="ru">Россия</option>
+                        <option value="kz">Казахстан</option>
+                        <option value="by">Беларусь</option>
+                        <option value="ua">Украина</option>
+                        <option value="other">Другая</option>
+                    </select>
+                </div>
+
+                <!-- Поле 10: Город -->
+                <div class="form-group">
+                    <label for="city">Город <span style="color: #ff4444;">*</span></label>
+                    <input type="text" id="city" name="city" placeholder="Ваш город" required>
+                </div>
+
+                <!-- Поле 11: Индекс -->
+                <div class="form-group">
+                    <label for="zip">Почтовый индекс</label>
+                    <input type="text" id="zip" name="zip" placeholder="123456">
+                </div>
+
+                <!-- Поле 12: Улица -->
+                <div class="form-group">
+                    <label for="street">Улица</label>
+                    <input type="text" id="street" name="street" placeholder="Название улицы">
+                </div>
+
+                <!-- Поле 13: Дом -->
+                <div class="form-group">
+                    <label for="house">Дом</label>
+                    <input type="text" id="house" name="house" placeholder="№ дома">
+                </div>
+
+                <!-- Поле 14: Квартира -->
+                <div class="form-group">
+                    <label for="apartment">Квартира</label>
+                    <input type="text" id="apartment" name="apartment" placeholder="№ квартиры">
+                </div>
+
+                <!-- Поле 15: Тип жилья (радиокнопки) -->
+                <div class="form-group">
+                    <label>Тип жилья</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" id="house_type" name="housing_type" value="private"> Частный дом
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" id="apartment_type" name="housing_type" value="apartment"> Квартира
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Разделитель -->
+                <div class="section-divider">
+                    <span>💼 Работа и образование</span>
+                </div>
+
+                <!-- Блок 3: Работа и увлечения (5 полей) -->
+                
+                <!-- Поле 16: Образование -->
+                <div class="form-group">
+                    <label for="education">Образование</label>
+                    <select id="education" name="education">
+                        <option value="">Выберите уровень</option>
+                        <option value="secondary">Среднее</option>
+                        <option value="bachelor">Бакалавр</option>
+                        <option value="master">Магистр</option>
+                        <option value="phd">Кандидат наук</option>
+                    </select>
+                </div>
+
+                <!-- Поле 17: Профессия -->
+                <div class="form-group">
+                    <label for="profession">Профессия</label>
+                    <input type="text" id="profession" name="profession" placeholder="Ваша профессия">
+                </div>
+
+                <!-- Поле 18: Опыт работы (годы) -->
+                <div class="form-group">
+                    <label for="experience">Опыт работы (лет)</label>
+                    <input type="range" id="experience" name="experience" min="0" max="50" value="0" oninput="this.nextElementSibling.value = this.value">
+                    <output>0</output> лет
+                </div>
+
+                <!-- Поле 19: Навыки (чекбоксы) -->
+                <div class="form-group full-width">
+                    <label>Ваши навыки</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="skill1" name="skills" value="html"> HTML
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="skill2" name="skills" value="css"> CSS
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="skill3" name="skills" value="js"> JavaScript
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="skill4" name="skills" value="python"> Python
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="skill5" name="skills" value="java"> Java
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Поле 20: О себе (textarea) -->
+                <div class="form-group full-width">
+                    <label for="about">О себе</label>
+                    <textarea id="about" name="about" placeholder="Расскажите немного о себе..."></textarea>
+                </div>
+
+                <!-- Разделитель -->
+                <div class="section-divider">
+                    <span>🔐 Дополнительная информация</span>
+                </div>
+
+                <!-- Блок 4: Дополнительно (4 поля) -->
+                
+                <!-- Поле 21: Пароль -->
+                <div class="form-group">
+                    <label for="password">Пароль <span style="color: #ff4444;">*</span></label>
+                    <input type="password" id="password" name="password" placeholder="Минимум 8 символов" required minlength="8">
+                </div>
+
+                <!-- Поле 22: Подтверждение пароля -->
+                <div class="form-group">
+                    <label for="confirm_password">Подтвердите пароль <span style="color: #ff4444;">*</span></label>
+                    <input type="password" id="confirm_password" name="confirm_password" placeholder="Повторите пароль" required>
+                </div>
+
+                <!-- Поле 23: Согласие на обработку (чекбокс) -->
+                <div class="form-group full-width">
+                    <label class="checkbox-option" style="justify-content: flex-start;">
+                        <input type="checkbox" id="consent" name="consent" required checked>
+                        Я согласен на обработку персональных данных <span style="color: #ff4444;">*</span>
+                    </label>
+                </div>
+
+                <!-- Поле 24: Подписка на новости (чекбокс) -->
+                <div class="form-group full-width">
+                    <label class="checkbox-option" style="justify-content: flex-start;">
+                        <input type="checkbox" id="newsletter" name="newsletter">
+                        Хочу получать новости и обновления
+                    </label>
+                </div>
+
+                <!-- Кнопка отправки -->
+                <button type="submit" class="submit-btn">
+                    🚀 Отправить форму (24 поля)
+                </button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
