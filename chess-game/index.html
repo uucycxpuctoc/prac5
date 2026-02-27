@@ -3,59 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DOM Chess | Практическая работа №5</title>
+    <title>♜ DOM Chess | Современные шахматы</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="chess-container">
-        <header class="game-header">
-            <h1>♟️ DOM Chess</h1>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>♜ DOM Chess</h1>
             <div class="game-status">
                 <div class="turn-indicator">
                     <span class="turn-label">Ход:</span>
-                    <span class="turn-player white-turn" id="turnIndicator">Белые</span>
+                    <span class="current-player" id="currentPlayer">Белые</span>
                 </div>
-                <div class="game-controls">
-                    <button class="btn new-game-btn" id="newGameBtn">🔄 Новая игра</button>
-                    <button class="btn undo-btn" id="undoBtn">↩️ Отменить</button>
-                </div>
-            </div>
-        </header>
-
-        <div class="board-wrapper">
-            <div class="board-container">
-                <div class="board" id="chessBoard"></div>
-                <div class="coordinates">
-                    <div class="files">
-                        <span>a</span><span>b</span><span>c</span><span>d</span>
-                        <span>e</span><span>f</span><span>g</span><span>h</span>
-                    </div>
-                    <div class="ranks">
-                        <span>8</span><span>7</span><span>6</span><span>5</span>
-                        <span>4</span><span>3</span><span>2</span><span>1</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="captured-pieces">
-                <h3>Взятые фигуры</h3>
-                <div class="captured-section">
-                    <h4>⚪ Белые</h4>
-                    <div class="captured-white" id="capturedWhite"></div>
-                </div>
-                <div class="captured-section">
-                    <h4>⚫ Черные</h4>
-                    <div class="captured-black" id="capturedBlack"></div>
-                </div>
+                <div class="check-indicator" id="checkIndicator" style="display: none;">⚡ Шах!</div>
             </div>
         </div>
 
-        <footer class="game-footer">
-            <div class="move-history">
-                <h3>История ходов</h3>
-                <div class="moves-list" id="moveHistory"></div>
+        <div class="board-wrapper">
+            <div class="board" id="chessBoard"></div>
+        </div>
+
+        <div class="game-controls">
+            <button class="btn" id="newGameBtn">🔄 Новая игра</button>
+            <button class="btn" id="undoBtn" disabled>↩️ Отменить ход</button>
+            <button class="btn" id="resignBtn">🏳️ Сдаться</button>
+        </div>
+
+        <div class="captured-pieces">
+            <div class="captured-title">Взятые фигуры:</div>
+            <div class="captured-container">
+                <div class="captured-white" id="capturedWhite"></div>
+                <div class="captured-black" id="capturedBlack"></div>
             </div>
-        </footer>
+        </div>
+
+        <div class="move-history">
+            <div class="history-title">История ходов:</div>
+            <div class="history-list" id="moveHistory"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2 id="gameOverMessage">Игра окончена</h2>
+            <button class="btn" id="modalNewGameBtn">Новая игра</button>
+        </div>
     </div>
 
     <script src="js/utils.js"></script>
