@@ -1,264 +1,338 @@
-// Главный класс игры
-class Game {
-    constructor() {
-        this.board = new Board();
-        this.currentTurn = 'white';
-        this.gameOver = false;
-        this.moveHistory = [];
-        this.capturedPieces = { white: [], black: [] };
-        
-        // DOM элементы
-        this.boardElement = document.getElementById('chessBoard');
-        this.turnIndicator = document.getElementById('currentPlayer');
-        this.checkIndicator = document.getElementById('checkIndicator');
-        this.moveHistoryElement = document.getElementById('moveHistory');
-        this.capturedWhiteElement = document.getElementById('capturedWhite');
-        this.capturedBlackElement = document.getElementById('capturedBlack');
-        this.undoBtn = document.getElementById('undoBtn');
-        this.newGameBtn = document.getElementById('newGameBtn');
-        this.resignBtn = document.getElementById('resignBtn');
-        this.gameOverModal = document.getElementById('gameOverModal');
-        this.gameOverMessage = document.getElementById('gameOverMessage');
-        this.modalNewGameBtn = document.getElementById('modalNewGameBtn');
-
-        this.init();
-    }
-
-    // Инициализация игры
-    init() {
-        this.board.setupInitialPosition();
-        this.renderBoard();
-        this.setupEventListeners();
-        this.updateTurnIndicator();
-        this.updateUI();
-    }
-
-    // Настройка обработчиков событий
-    setupEventListeners() {
-        // Используем делегирование событий для доски
-        this.boardElement.addEventListener('click', (e) => {
-            if (this.gameOver) return;
-
-            const cell = e.target.closest('.cell');
-            if (!cell) return;
-
-            const row = parseInt(cell.dataset.row);
-            const col = parseInt(cell.dataset.col);
-            
-            this.handleCellClick(row, col);
-        });
-
-        this.newGameBtn.addEventListener('click', () => this.resetGame());
-        this.undoBtn.addEventListener('click', () => this.undoMove());
-        this.resignBtn.addEventListener('click', () => this.resign());
-        this.modalNewGameBtn.addEventListener('click', () => {
-            this.gameOverModal.style.display = 'none';
-            this.resetGame();
-        });
-    }
-
-    // Обработка клика по клетке
-    handleCellClick(row, col) {
-        const piece = this.board.getPiece(row, col);
-        
-        // Если есть выбранная фигура и клетка в списке возможных ходов
-        if (this.board.selectedPiece) {
-            const isValidMove = this.board.validMoves.some(
-                move => move.row === row && move.col === col
-            );
-
-            if (isValidMove) {
-                this.makeMove(this.board.selectedPiece.position.row, 
-                             this.board.selectedPiece.position.col, row, col);
-                return;
-            }
-        }
-
-        // Выбор новой фигуры
-        if (piece && piece.color === this.currentTurn) {
-            this.selectPiece(row, col);
-        } else {
-            this.deselectPiece();
-        }
-    }
-
-    // Выбор фигуры
-    selectPiece(row, col) {
-        const piece = this.board.getPiece(row, col);
-        if (!piece || piece.color !== this.currentTurn) return;
-
-        this.board.selectedPiece = piece;
-        this.board.validMoves = this.board.getLegalMoves(row, col);
-        
-        this.renderBoard();
-        this.highlightSelectedPiece(row, col);
-        this.highlightValidMoves();
-    }
-
-    // Снятие выделения с фигуры
-    deselectPiece() {
-        this.board.clearSelection();
-        this.renderBoard();
-    }
-
-    // Выполнение хода
-    makeMove(fromRow, fromCol, toRow, toCol) {
-        const piece = this.board.getPiece(fromRow, fromCol);
-        const capturedPiece = this.board.getPiece(toRow, toCol);
-        
-        // Сохраняем состояние для отмены
-        const moveRecord = {
-            from: { row: fromRow, col: fromCol },
-            to: { row: toRow, col: toCol },
-            piece: piece,
-            captured: capturedPiece,
-            turn: this.currentTurn
-        };
-
-        // Выполняем ход
-        const captured = this.board.movePiece(fromRow, fromCol, toRow, toCol);
-        
-        if (captured) {
-            this.capturedPieces[this.currentTurn].push(captured);
-        }
-
-        // Проверяем состояние игры
-        if (this.board.isInCheckmate(this.currentTurn === 'white' ? 'black' : 'white')) {
-            this.gameOver = true;
-            this.showGameOver(`${this.currentTurn === 'white' ? 'Белые' : 'Черные'} победили! Мат!`);
-        } else if (this.board.isStalemate(this.currentTurn === 'white' ? 'black' : 'white')) {
-            this.gameOver = true;
-            this.showGameOver('Ничья! Пат!');
-        }
-
-        // Добавляем ход в историю
-        this// Главный класс игры
 class Game {
     constructor() {
         this.board = new Board();
         this.currentPlayer = 'white';
         this.gameOver = false;
         this.moveHistory = [];
-        this.capturedPieces = {
-            white: [],
-            black: []
-        };
+        this.capturedWhite = [];
+        this.capturedBlack = [];
+        this.selectedPosition = null;
+        
+        this.boardElement = document.getElementById('chessboard');
+        this.turnIndicator = document.getElementById('current-turn');
+        this.moveListElement = document.getElementById('move-list');
+        this.checkMessageElement = document.getElementById('check-message');
+        this.gameOverMessageElement = document.getElementById('game-over-message');
+        this.undoBtn = document.getElementById('undo-btn');
+        this.resignBtn = document.getElementById('resign-btn');
         
         this.init();
     }
 
-    // Инициализация игры
     init() {
         this.board.setupInitialPosition();
-        this.setupEventListeners();
-        this.updateUI();
+        this.renderBoard();
+        this.attachEventListeners();
+        this.updateTurnIndicator();
+        this.updateButtons();
+        this.updateCapturedPieces();
     }
 
-    // Настройка обработчиков событий
-    setupEventListeners() {
-        // Делегирование событий для доски
-        this.board.boardElement.addEventListener('click', (e) => {
-            if (this.gameOver) return;
-            
-            const cell = e.target.closest('.cell');
-            if (!cell) return;
-            
-            const row = parseInt(cell.dataset.row);
-            const col = parseInt(cell.dataset.col);
-            
-            this.handleCellClick(row, col);
-        });
-
-        // Кнопка новой игры
-        document.getElementById('newGameBtn').addEventListener('click', () => {
-            this.resetGame();
-        });
-
-        // Кнопка отмены хода
-        document.getElementById('undoBtn').addEventListener('click', () => {
-            this.undoLastMove();
-        });
-    }
-
-    // Обработка клика по клетке
-    handleCellClick(row, col) {
-        const piece = this.board.cells[row][col];
+    attachEventListeners() {
+        // Делегирование событий на доску
+        this.boardElement.addEventListener('click', (e) => this.handleCellClick(e));
         
-        // Если есть выбранная фигура и клетка в списке возможных ходов
-        if (this.board.selectedCell) {
-            if (this.board.validMoves.some(move => move.row === row && move.col === col)) {
-                this.makeMove(this.board.selectedCell.row, this.board.selectedCell.col, row, col);
-            } else {
-                // Если кликнули на другую свою фигуру
-                if (piece && piece.color === this.currentPlayer) {
-                    this.board.selectPiece(row, col, this.currentPlayer);
-                } else {
-                    this.board.deselectPiece();
+        document.getElementById('new-game-btn').addEventListener('click', () => this.newGame());
+        document.getElementById('undo-btn').addEventListener('click', () => this.undoMove());
+        document.getElementById('resign-btn').addEventListener('click', () => this.resign());
+    }
+
+    renderBoard() {
+        this.boardElement.innerHTML = '';
+        
+        for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+                const cell = document.createElement('div');
+                cell.className = `cell ${(row + col) % 2 === 0 ? 'light' : 'dark'}`;
+                cell.dataset.row = row;
+                cell.dataset.col = col;
+                cell.dataset.position = Utils.toAlgebraic(row, col);
+                
+                const piece = this.board.getPiece(row, col);
+                if (piece) {
+                    cell.textContent = Utils.getPieceSymbol(piece);
+                    cell.classList.add(piece.color === 'white' ? 'white-piece' : 'black-piece');
                 }
+                
+                // Подсветка возможных ходов
+                if (this.board.validMoves) {
+                    const move = this.board.validMoves.find(m => m.row === row && m.col === col);
+                    if (move) {
+                        cell.classList.add(move.type === 'capture' ? 'highlight-capture' : 'highlight-move');
+                    }
+                }
+                
+                // Подсветка шаха
+                if (this.board.checkPosition && 
+                    this.board.checkPosition.row === row && 
+                    this.board.checkPosition.col === col) {
+                    cell.classList.add('check');
+                }
+                
+                this.boardElement.appendChild(cell);
             }
+        }
+    }
+
+    handleCellClick(e) {
+        if (this.gameOver) return;
+
+        const cell = e.target.closest('.cell');
+        if (!cell) return;
+
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        const piece = this.board.getPiece(row, col);
+
+        // Если есть выбранная фигура и клик по подсвеченной клетке - ход
+        if (this.selectedPosition && this.isValidMove(row, col)) {
+            this.makeMove(this.selectedPosition.row, this.selectedPosition.col, row, col);
+        } 
+        // Иначе выбор фигуры
+        else if (piece && piece.color === this.currentPlayer && !this.gameOver) {
+            this.selectPiece(row, col);
         } else {
-            // Выбор фигуры
-            if (piece && piece.color === this.currentPlayer) {
-                this.board.selectPiece(row, col, this.currentPlayer);
-            }
+            this.deselectPiece();
         }
     }
 
-    // Совершение хода
-    makeMove(fromRow, fromCol, toRow, toCol) {
-        const moveResult = this.board.movePiece(fromRow, fromCol, toRow, toCol);
+    selectPiece(row, col) {
+        const piece = this.board.getPiece(row, col);
+        if (!piece || piece.color !== this.currentPlayer) return;
+
+        this.deselectPiece(); // Снимаем предыдущее выделение
         
-        if (moveResult) {
-            // Добавляем в историю
-            this.moveHistory.push(moveResult);
-            
-            // Добавляем взятую фигуру
-            if (moveResult.captured) {
-                this.capturedPieces[this.currentPlayer].push(moveResult.captured);
-            }
-            
-            // Проверяем шах и мат
-            const opponent = this.currentPlayer === 'white' ? 'black' : 'white';
-            
-            if (this.board.isCheckmate(opponent)) {
-                this.gameOver = true;
-                Utils.showNotification(`Мат! Победили ${this.currentPlayer === 'white' ? 'белые' : 'черные'}!`, 'success');
-            } else if (this.board.isInCheck(opponent)) {
-                Utils.showNotification('Шах!', 'warning');
-            }
-            
-            // Смена игрока
-            this.currentPlayer = opponent;
-            this.updateUI();
-            
-            // Подсвечиваем шах
-            this.board.highlightCheck();
-        }
+        this.selectedPosition = { row, col };
+        
+        // Получаем легальные ходы (с учетом шаха)
+        const legalMoves = this.board.getLegalMoves(piece);
+        this.board.validMoves = legalMoves;
+        
+        this.renderBoard();
+        
+        // Добавляем класс выделения
+        const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        if (selectedCell) selectedCell.classList.add('selected');
     }
 
-    // Обновление интерфейса
-    updateUI() {
-        // Обновляем индикатор хода
-        const turnElement = document.querySelector('.turn-player');
-        turnElement.textContent = this.currentPlayer === 'white' ? 'Белые' : 'Черные';
-        turnElement.className = `turn-player ${this.currentPlayer === 'white' ? 'white-turn' : 'black-turn'}`;
+    deselectPiece() {
+        this.selectedPosition = null;
+        this.board.validMoves = [];
+        this.renderBoard();
+    }
+
+    isValidMove(row, col) {
+        return this.board.validMoves.some(move => move.row === row && move.col === col);
+    }
+
+    makeMove(fromRow, fromCol, toRow, toCol) {
+        const piece = this.board.getPiece(fromRow, fromCol);
+        if (!piece) return false;
+
+        const captured = this.board.getPiece(toRow, toCol);
+        
+        // Сохраняем состояние для отмены хода
+        const moveRecord = {
+            from: { row: fromRow, col: fromCol },
+            to: { row: toRow, col: toCol },
+            piece: piece,
+            captured: captured,
+            oldCurrentPlayer: this.currentPlayer,
+            oldCastlingRights: { ...this.castlingRights } // Если реализовано
+        };
+        
+        // Выполняем ход
+        this.board.movePiece(fromRow, fromCol, toRow, toCol);
         
         // Обновляем захваченные фигуры
-        this.updateCapturedPieces();
-        
-        // Обновляем историю ходов
+        if (captured) {
+            if (captured.color === 'white') {
+                this.capturedWhite.push(captured);
+            } else {
+                this.capturedBlack.push(captured);
+            }
+            this.updateCapturedPieces();
+        }
+
+        // Запись в историю
+        const moveNotation = this.getMoveNotation(piece, fromRow, fromCol, toRow, toCol, captured);
+        moveRecord.notation = moveNotation;
+        this.moveHistory.push(moveRecord);
         this.updateMoveHistory();
+
+        // Проверка на шах
+        const opponentColor = this.currentPlayer === 'white' ? 'black' : 'white';
+        if (this.board.isInCheck(opponentColor)) {
+            this.showCheckMessage(opponentColor);
+        } else {
+            this.hideCheckMessage();
+        }
+
+        // Проверка на мат или пат
+        if (this.board.isCheckmate(opponentColor)) {
+            this.endGame(`${this.currentPlayer === 'white' ? 'Белые' : 'Черные'} выиграли матом!`);
+        } else if (this.board.isStalemate(opponentColor)) {
+            this.endGame('Ничья (пат)');
+        }
+
+        // Смена игрока
+        this.currentPlayer = this.currentPlayer === 'white' ? 'black' : 'white';
+        this.updateTurnIndicator();
+        
+        // Снимаем выделение
+        this.deselectPiece();
+        
+        // Обновляем кнопки
+        this.updateButtons();
+        
+        return true;
     }
 
-    // Обновление захваченных фигур
+    getMoveNotation(piece, fromRow, fromCol, toRow, toCol, captured) {
+        const files = 'abcdefgh';
+        const fromFile = files[fromCol];
+        const fromRank = 8 - fromRow;
+        const toFile = files[toCol];
+        const toRank = 8 - toRow;
+        
+        let notation = '';
+        
+        // Символ фигуры (кроме пешки)
+        if (piece.type !== 'pawn') {
+            const symbols = { king: 'K', queen: 'Q', rook: 'R', bishop: 'B', knight: 'N' };
+            notation += symbols[piece.type] || '';
+        }
+        
+        // Для пешек при взятии
+        if (piece.type === 'pawn' && captured) {
+            notation += fromFile;
+        }
+        
+        // Символ взятия
+        if (captured) notation += 'x';
+        
+        // Клетка назначения
+        notation += toFile + toRank;
+        
+        // Шах или мат (будут добавлены позже)
+        return notation;
+    }
+
+    updateMoveHistory() {
+        this.moveListElement.innerHTML = '';
+        
+        this.moveHistory.forEach((move, index) => {
+            const moveItem = document.createElement('span');
+            moveItem.className = `move-item ${index % 2 === 0 ? 'white-move' : 'black-move'}`;
+            moveItem.textContent = `${Math.floor(index / 2) + 1}.${index % 2 === 0 ? '' : '..'} ${move.notation}`;
+            this.moveListElement.appendChild(moveItem);
+        });
+        
+        // Скролл вниз
+        this.moveListElement.scrollTop = this.moveListElement.scrollHeight;
+    }
+
     updateCapturedPieces() {
-        const whiteCaptured = document.querySelector('.captured-white');
-        const blackCaptured = document.querySelector('.captured-black');
+        const whiteCapturedElement = document.querySelector('.captured-white');
+        const blackCapturedElement = document.querySelector('.captured-black');
         
-        whiteCaptured.innerHTML = this.capturedPieces.black
-            .map(piece => `<span>${piece.getSymbol()}</span>`)
-            .join('');
+        whiteCapturedElement.innerHTML = this.capturedWhite.map(p => 
+            `<span class="black-piece">${Utils.getPieceSymbol(p)}</span>`
+        ).join('');
         
-        blackCaptured.innerHTML = this.capturedPieces.white
-            .map(piece => `<span>${piece.getSymbol()}</span>`)
-            .join('');
+        blackCapturedElement.innerHTML = this.capturedBlack.map(p => 
+            `<span class="white-piece">${Utils.getPieceSymbol(p)}</span>`
+        ).join('');
+    }
+
+    showCheckMessage(color) {
+        this.checkMessageElement.classList.remove('hidden');
+        setTimeout(() => {
+            this.hideCheckMessage();
+        }, 2000);
+    }
+
+    hideCheckMessage() {
+        this.checkMessageElement.classList.add('hidden');
+    }
+
+    endGame(message) {
+        this.gameOver = true;
+        this.gameOverMessageElement.textContent = message;
+        this.gameOverMessageElement.classList.remove('hidden');
+        this.updateButtons();
+        
+        setTimeout(() => {
+            this.gameOverMessageElement.classList.add('hidden');
+        }, 5000);
+    }
+
+    updateTurnIndicator() {
+        this.turnIndicator.textContent = this.currentPlayer === 'white' ? 'Белые' : 'Черные';
+        this.turnIndicator.className = this.currentPlayer === 'white' ? 'turn-white' : 'turn-black';
+    }
+
+    updateButtons() {
+        this.undoBtn.disabled = this.moveHistory.length === 0 || this.gameOver;
+        this.resignBtn.disabled = this.gameOver;
+    }
+
+    newGame() {
+        this.board.setupInitialPosition();
+        this.currentPlayer = 'white';
+        this.gameOver = false;
+        this.moveHistory = [];
+        this.capturedWhite = [];
+        this.capturedBlack = [];
+        this.selectedPosition = null;
+        
+        this.renderBoard();
+        this.updateTurnIndicator();
+        this.updateMoveHistory();
+        this.updateCapturedPieces();
+        this.updateButtons();
+        this.hideCheckMessage();
+    }
+
+    undoMove() {
+        if (this.moveHistory.length === 0 || this.gameOver) return;
+        
+        const lastMove = this.moveHistory.pop();
+        
+        // Отменяем ход
+        this.board.setPiece(lastMove.from.row, lastMove.from.col, lastMove.piece);
+        this.board.setPiece(lastMove.to.row, lastMove.to.col, lastMove.captured);
+        
+        // Восстанавливаем захваченную фигуру
+        if (lastMove.captured) {
+            if (lastMove.captured.color === 'white') {
+                this.capturedWhite.pop();
+            } else {
+                this.capturedBlack.pop();
+            }
+        }
+        
+        // Возвращаем ход текущему игроку
+        this.currentPlayer = lastMove.oldCurrentPlayer;
+        
+        // Обновляем отображение
+        this.renderBoard();
+        this.updateTurnIndicator();
+        this.updateMoveHistory();
+        this.updateCapturedPieces();
+        this.updateButtons();
+        
+        // Снимаем выделение
+        this.deselectPiece();
+    }
+
+    resign() {
+        const winner = this.currentPlayer === 'white' ? 'Черные' : 'Белые';
+        this.endGame(`${winner} выиграли (сдача)`);
+    }
+}
+
+// Инициализация игры при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    window.game = new Game();
+});
