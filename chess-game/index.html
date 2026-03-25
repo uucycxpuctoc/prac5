@@ -2,44 +2,37 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>♜ DOM Chess | Практическая работа №5</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>DOM Chess - Шахматы на JavaScript</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="game-container">
-        <h1>♔ DOM Chess</h1>
-        
-        <div class="game-info">
-            <div class="turn-indicator">
-                <span class="turn-label">Ход:</span>
-                <span id="current-turn" class="turn-white">Белые</span>
+    <div class="container">
+        <div class="game-container">
+            <div class="info-panel">
+                <div class="player-turn">
+                    <div class="turn-indicator">
+                        <span class="turn-text">Ход:</span>
+                        <span class="current-player">Белые</span>
+                    </div>
+                    <div class="turn-color-indicator white-turn"></div>
+                </div>
+                <div class="game-controls">
+                    <button id="newGameBtn" class="control-btn">🔄 Новая игра</button>
+                    <button id="undoBtn" class="control-btn">↩️ Отменить ход</button>
+                </div>
+                <div class="game-status">
+                    <div class="status-message"></div>
+                </div>
             </div>
+            <div id="chessBoard" class="chess-board"></div>
             <div class="captured-pieces">
+                <div class="captured-title">Взятые фигуры</div>
                 <div class="captured-white"></div>
                 <div class="captured-black"></div>
             </div>
-            <div class="game-controls">
-                <button id="new-game-btn" class="btn">⟲ Новая игра</button>
-                <button id="undo-btn" class="btn" disabled>↩ Отменить</button>
-                <button id="resign-btn" class="btn" disabled>🏳 Сдаться</button>
-            </div>
         </div>
-
-        <div id="chessboard" class="chessboard"></div>
-
-        <div class="move-history">
-            <h3>История ходов</h3>
-            <div id="move-list" class="move-list"></div>
-        </div>
-
-        <div id="check-message" class="check-message hidden">ШАХ!</div>
-        <div id="game-over-message" class="game-over-message hidden"></div>
     </div>
-
-    <script src="js/utils.js"></script>
-    <script src="js/pieces.js"></script>
-    <script src="js/board.js"></script>
-    <script src="js/game.js"></script>
+    <script type="module" src="js/game.js"></script>
 </body>
 </html>
